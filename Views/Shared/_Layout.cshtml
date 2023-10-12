@@ -1,0 +1,88 @@
+﻿@using iLearn.Areas.Identity.Data;
+@using Microsoft.AspNetCore.Identity;
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - iLearn</title>
+    <link href="~/css/styles.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/iLearn.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3" style="background-color:#04102C !important; color:white !important">
+            <div class="container-fluid">
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    <a class="navbar-brand" style="color:white !important" asp-area="" asp-controller="Home" asp-action="Index">
+                        <img src="~/ilearn_logo.png" alt="iLearn" style="max-height: 80px; max-width: 150px;">
+                    </a>
+                    <div class="input-group" style="width:600px">
+                        <input type="text" class="form-control" aria-label="Text input with dropdown button" style="max-width:500px">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary dropdown-toggle" id="dropdown-header" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Actions</button>
+                            <div class="header-dropdown-menu" style="display:none; position: absolute">
+                                <a class="dropdown-item" asp-area="Instructor" asp-page="/Instructor/Course">Manage Course</a>
+                                <a class="dropdown-item" href="#">Manage Sections</a>
+                                <a class="dropdown-item" href="#">Manage Evaluation</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    @* <a class="navbar-brand" style="color:white !important" asp-area="" asp-controller="Landing" asp-action="Index">iLearn</a> *@
+                    <a class="navbar-brand" asp-area="" asp-controller="Landing" asp-action="Index">
+                        <img src="~/ilearn_logo.png" alt="iLearn" style="max-height: 80px; max-width: 150px;">
+                    </a>
+                }
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <partial name="_LoginPartial" />
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#dropdown-header').on('click', function () {
+            console.log('hiii');
+            if ($(this).hasClass('expanded')) {
+                $(this).removeClass('expanded');
+                $('.header-dropdown-menu').hide();
+            }
+            else {
+                $(this).addClass('expanded');
+                $('.header-dropdown-menu').show();
+            }
+        });
+
+        $('.dropdown-item').on('click', function () {
+            $('#dropdown-header').removeClass('expanded');
+            $('.header-dropdown-menu').hide();
+        })
+    });
+</script>

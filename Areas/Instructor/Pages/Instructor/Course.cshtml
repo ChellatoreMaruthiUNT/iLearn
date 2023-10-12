@@ -1,0 +1,57 @@
+﻿@page
+@model iLearn.Views.Instructor.CourseModel
+@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+}
+<div class="row">
+    <div class="col-md-9">
+        <form id="manageCourseForm" method="post">
+            <h2>Manage Course</h2>
+            <hr />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-floating">
+                        <input asp-for="Input.Title" class="form-control" autocomplete="username" aria-required="true" />
+                        <label asp-for="Input.Title"></label>
+                        <span asp-validation-for="Input.Title" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="height: 25px;"></div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-floating">
+                        <input asp-for="Input.Description" class="form-control" autocomplete="username" aria-required="true" />
+                        <label asp-for="Input.Description"></label>
+                        <span asp-validation-for="Input.Description" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="height: 25px;"></div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-check">
+                        <input asp-for="Input.IsCertificationProvided" class="form-check-input" />
+                        <label class="form-check-label" asp-for="Input.IsCertificationProvided"></label>
+                        <span asp-validation-for="Input.IsCertificationProvided" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check">
+                        <input asp-for="Input.IsAssessmentRequired" class="form-check-input" />
+                        <label class="form-check-label" asp-for="Input.IsAssessmentRequired"></label>
+                        <span asp-validation-for="Input.IsAssessmentRequired" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="height: 25px;"></div>
+            <button id="courseSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Create Course</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

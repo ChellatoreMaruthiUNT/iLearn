@@ -1,0 +1,9 @@
+﻿.btn-primary {
+    background-color: #04102C !important; /* Change this to the color you want */
+    color: #fff; /* Change this to the text color you want */
+}
+
+.dropdown-item {
+    background-color: #04102C !important; /* Change this to the color you want */
+    color: #fff !important; /* Change this to the text color you want */
+}
