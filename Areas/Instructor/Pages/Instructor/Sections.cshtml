@@ -1,0 +1,305 @@
+﻿@page
+@model iLearn.Views.Instructor.SectionsModel
+@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+}
+
+
+<style>
+    /* Styling for the modal and form */
+    #modalEvaluation {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+        padding-top: 50px; /* Adjust as needed */
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 5% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%; /* Adjust as needed */
+    }
+
+    .question-container {
+        margin-bottom: 10px;
+    }
+
+    .option-container {
+        margin-left: 20px;
+        margin-bottom: 5px;
+    }
+
+    /* Styling for buttons */
+    .add-question-btn,
+    .add-option-btn,
+    .remove-question-btn,
+    .remove-option-btn {
+        margin-top: 5px;
+        margin-right: 5px;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-9">
+        <form id="manageSectionsForm" method="post" enctype="multipart/form-data">
+            <h2>Manage Sections</h2>
+            <hr />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-floating">
+                        <input asp-for="Input.Title" class="form-control" autocomplete="Section Title" aria-required="true" />
+                        <label asp-for="Input.Title"></label>
+                        <span asp-validation-for="Input.Title" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="height: 25px;"></div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-floating">
+                        <input asp-for="Input.Description" class="form-control" autocomplete="Section Description" aria-required="true" />
+                        <label asp-for="Input.Description"></label>
+                        <span asp-validation-for="Input.Description" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="height: 25px;"></div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        <input type="file" asp-for="SectionFile" class="form-control" autocomplete="Document" aria-required="true" />
+                        <span asp-validation-for="SectionFile" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        <input asp-for="Input.Duration" class="form-control" autocomplete="Section Duration" aria-required="true" />
+                        <label asp-for="Input.Duration"></label>
+                        <span asp-validation-for="Input.Duration" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="height: 25px;"></div>
+            <div class="row">
+                <div class="form-floating">
+                    <select asp-for="Input.CourseCodeSelected" class="form-select" id="CourseList" aria-label="Select an option">
+                        <option value="" disabled selected>Select an option</option>
+
+                        @foreach (var option in Model.CoursesList)
+                        {
+                            <option value="@option.CourseCode">@option.CourseTitle</option>
+                        }
+                    </select>
+                    <label asp-for="Input.CourseCodeSelected"></label>
+                    <span asp-validation-for="Input.CourseCodeSelected" class="text-danger"></span>
+
+                </div>
+            </div>
+            <div class="row" style="height: 25px;"></div>
+            <div class="row">
+                <label>Note:- If you wish to add evaluation to this section click on Add Evaluation button or proceed to create section</label>
+                <div class="col-md-6">
+                    <button type="button" class="w-100 btn-lg btn-primary" onclick="loadPopupContent()">Map Evaluation</button>
+                </div>
+                <div class="col-md-6">
+                    <button id="sectionSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Create Section</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div id="popupContainer">
+    <div id="modalEvaluation" class="modal">
+        <div class="modal-content">
+            <div class="d-flex justify-content-between">
+                <h2>Manage Evaluation</h2>
+                <span class="close" id="evaluationPopupClose" onclick="closeModal()">close</span>
+            </div>
+            <form method="post" asp-page-handler="SubmitForm">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div id="questionsContainer">
+                    <!-- Questions will be dynamically added here -->
+                </div>
+
+                <button type="button" class="btn btn-secondary" onclick="addQuestion()">Add Question</button>
+
+                <button type="button" class="btn btn-primary" id="submitEvaluation" onclick="submitModalData()">Submit</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        function loadPopupContent() {
+            // Use jQuery to load the content of PopupPage into the #popupContainer
+            // $("#popupContainer").load("/Instructor/Instructor/Evaluations #modalEvaluation", function () {
+            //     openModal();
+            // });
+
+            openModal();
+        }
+
+        function openModal() {
+            document.getElementById("modalEvaluation").style.display = "block";
+        }
+
+        function closeModal() {
+            document.getElementById("modalEvaluation").style.display = "none";
+        }
+
+        var questionNumber = 1; // Initialize question number
+
+        function addQuestion() 
+        {
+            // Create a div to hold the question and options
+            var questionContainer = document.createElement("div");
+            questionContainer.className = "form-row question-container";
+
+            // Create a question number input
+            var questionNumberInput = document.createElement("input");
+            questionNumberInput.type = "text";
+            questionNumberInput.className = "form-control col-md-1 mb-2";
+            questionNumberInput.value = "Question " + questionNumber; // Display question number
+            questionNumberInput.readOnly = true;
+            questionContainer.appendChild(questionNumberInput);
+
+            // Create a question input
+            var questionInput = document.createElement("input");
+            questionInput.type = "text";
+            questionInput.className = "form-control question-input col-md-4 mb-2";
+            questionInput.name = "questions[]";
+            questionInput.placeholder = "Enter your question";
+            questionInput.required = true;
+            questionContainer.appendChild(questionInput);
+
+            // Create a text box for the correct answer
+            var correctAnswerInput = document.createElement("input");
+            correctAnswerInput.type = "text";
+            correctAnswerInput.className = "form-control correct-answer-input col-md-1 mb-2";
+            correctAnswerInput.name = "correctAnswers[]";
+            correctAnswerInput.placeholder = "Enter correct option";
+            correctAnswerInput.required = true;
+            questionContainer.appendChild(correctAnswerInput);
+
+            // Create an "Add Option" button for this question
+            var addOptionButton = document.createElement("button");
+            addOptionButton.type = "button";
+            addOptionButton.className = "btn btn-secondary col-md-2 mb-2";
+            addOptionButton.textContent = "Add Option";
+            addOptionButton.onclick = function () {
+                addOption(questionContainer);
+            };
+            questionContainer.appendChild(addOptionButton);
+
+            // Create a "Remove Question" button
+            var removeQuestionButton = document.createElement("button");
+            removeQuestionButton.type = "button";
+            removeQuestionButton.className = "btn btn-danger col-md-2 mb-2";
+            removeQuestionButton.textContent = "Remove Question";
+            removeQuestionButton.onclick = function () {
+                questionContainer.remove();
+            };
+            questionContainer.appendChild(removeQuestionButton);
+
+            // Add two options by default
+            addOption(questionContainer);
+            addOption(questionContainer);
+
+            // Append the question container to the questions container
+            document.getElementById("questionsContainer").appendChild(questionContainer);
+
+            // Increment question number for the next question
+            questionNumber++;
+        }
+              
+   
+        function addOption(questionContainer) 
+        {
+            // Create a div to hold the option
+            var optionContainer = document.createElement("div");
+            optionContainer.className = "form-row option-container";
+
+            // Create an option input
+            var optionInput = document.createElement("input");
+            optionInput.type = "text";
+            optionInput.className = "form-control col-md-8 mb-2 option-input";
+            optionInput.name = "options[]";
+            optionInput.placeholder = "Enter option";
+            optionInput.required = true;
+            optionContainer.appendChild(optionInput);
+
+            // Create a "Remove Option" button
+            var removeOptionButton = document.createElement("button");
+            removeOptionButton.type = "button";
+            removeOptionButton.className = "btn btn-danger col-md-4 mb-2";
+            removeOptionButton.textContent = "Remove Option";
+            removeOptionButton.onclick = function () {
+                optionContainer.remove();
+            };
+            optionContainer.appendChild(removeOptionButton);
+
+            // Append the option container to the question container
+            questionContainer.appendChild(optionContainer);
+        }
+
+        function submitModalData() 
+        {
+            console.log("helloo");
+            // Gather data from dynamically generated fields
+            var FormData = {
+                Questions: []
+            };
+
+            $(".question-container").each(function () {
+                var questionContainer = $(this);
+                var question = questionContainer.find(".question-input").val();
+                var correctAnswer = questionContainer.find(".correct-answer-input").val();
+                var options = [];
+
+                questionContainer.find(".option-input").each(function () {
+                    options.push($(this).val());
+                });
+
+                FormData.Questions.push({
+                    Question: question,
+                    CorrectAnswer: correctAnswer,
+                    Options: options
+                });
+            });
+
+
+            $.ajax({
+                type: "POST",
+                url: "/Instructor/PostCourseSections", // Replace with the actual endpoint
+                contentType: "application/json",
+                data: JSON.stringify(FormData),
+                success: function (data) {
+                    // Handle success response if needed
+                    console.log("Data submitted successfully");
+                    // Close the modal or do other actions
+                    closeModal();
+                },
+                error: function (error) {
+                    // Handle error response if needed
+                    console.error("Error submitting data", error);
+                }
+            });
+
+        }
+
+
+    </script>
+}

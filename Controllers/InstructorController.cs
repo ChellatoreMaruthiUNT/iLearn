@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using iLearn.Areas.Instructor.Data;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 
 namespace iLearn.Controllers
 {
@@ -7,6 +9,12 @@ namespace iLearn.Controllers
         public IActionResult Index()
         {
             return View();
+        }
+
+        [HttpPost]
+        public void PostCourseSections([FromBody] EvaluationFormModel FormData)
+        {
+
         }
     }
 }
