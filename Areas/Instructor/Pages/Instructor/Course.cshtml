@@ -5,8 +5,22 @@
 }
 <div class="row">
     <div class="col-md-9">
-        <form id="manageCourseForm" method="post">
-            <h2>Manage Course</h2>
+        @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+        {
+            <div class="row" style="height:40px;"></div>
+            <div class="alert alert-success">
+                @Model.SuccessMessage
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="row" style="height:40px;"></div>
+            <div class="alert alert-danger">
+                @Model.ErrorMessage
+            </div>
+        }
+        <form id="createCourseForm" method="post">
+            <h2>Create Course</h2>
             <hr />
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
@@ -23,7 +37,7 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="form-floating">
-                        <input asp-for="Input.Description" class="form-control" autocomplete="username" aria-required="true" />
+                        <textarea asp-for="Input.Description" class="form-control description-box" autocomplete="Course Description" aria-required="true"></textarea>
                         <label asp-for="Input.Description"></label>
                         <span asp-validation-for="Input.Description" class="text-danger"></span>
                     </div>

@@ -27,7 +27,7 @@ public class iLearnContext : IdentityDbContext<IdentityUser>
             builder.Property(u => u.PhoneNumber).IsRequired();
             builder.Property(u => u.CountryCode).IsRequired();
             builder.Property(u => u.IsInstructor).IsRequired();
-
+            builder.Property(u => u.InstructorId).IsRequired();
         }
     }
 }

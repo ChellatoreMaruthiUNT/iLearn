@@ -20,7 +20,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
-
+using iLearn.iLearnDbModels;
 namespace iLearn.Areas.Identity.Pages.Account
 {
     public class RegisterModel : PageModel
@@ -31,12 +31,14 @@ namespace iLearn.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<ApplicationUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailService _emailService;
+        private readonly IUserService _userService;
         public RegisterModel(
             UserManager<ApplicationUser> userManager,
             IUserStore<ApplicationUser> userStore,
             SignInManager<ApplicationUser> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailService emailService
+            IEmailService emailService,
+            IUserService userService
             )
         {
             _userManager = userManager;
@@ -45,6 +47,7 @@ namespace iLearn.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
             _emailService = emailService;
+            _userService = userService;
         }
         [BindProperty]
         public InputModel Input { get; set; }
@@ -112,6 +115,21 @@ namespace iLearn.Areas.Identity.Pages.Account
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                    // if instructor create record in instructor table
+
+                    iLearnDbModels.Instructor instructor = new iLearnDbModels.Instructor()
+                    {
+                        InstructorEmailId = user.Email,
+                        InstructorFirstName = user.FirstName,
+                        InstructorLastName = user.LastName,
+                        CreatedOn = DateTime.Now,
+                        ModifiedOn = DateTime.Now,
+                        UserId = user.Id,
+                        InstructorPhoneNumber = user.PhoneNumber,
+                    };
+                    instructor = _userService.CreateInstructor(instructor);
+                    user.InstructorId = instructor.InstructorId;
+                    await _userManager.UpdateAsync(user);
                     var callbackUrl = Url.Page(
                         "/Account/ConfirmEmail",
                         pageHandler: null,

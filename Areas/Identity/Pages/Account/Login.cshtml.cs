@@ -15,6 +15,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using iLearn.Areas.Identity.Data;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Security.Claims;
+using iLearn.Enums;
+using iLearn.Services.Interfaces;
+using iLearn.iLearnDbModels;
 
 namespace iLearn.Areas.Identity.Pages.Account
 {
@@ -23,13 +28,15 @@ namespace iLearn.Areas.Identity.Pages.Account
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IUserService _userService;
 
-
-        public LoginModel(SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger, UserManager<ApplicationUser> userManager)
+        public LoginModel(SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger, UserManager<ApplicationUser> userManager, 
+            IUserService userService)
         {
             _signInManager = signInManager;
             _logger = logger;
             _userManager = userManager;
+            _userService = userService;
         }
         [BindProperty]
         public InputModel Input { get; set; }

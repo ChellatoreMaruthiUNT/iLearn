@@ -7,3 +7,11 @@
     background-color: #04102C !important; /* Change this to the color you want */
     color: #fff !important; /* Change this to the text color you want */
 }
+
+#dropdown-header {
+    color: #fff !important;
+}
+
+.description-box {
+    height: 200px !important;
+}

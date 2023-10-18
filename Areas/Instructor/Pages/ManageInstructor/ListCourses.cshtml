@@ -1,0 +1,68 @@
+﻿@page
+@model iLearn.Views.Instructor.ListCoursesModel
+@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .container {
+        max-width: 1200px; /* Adjust the max-width to make the container wider */
+        margin: 0 auto;
+    }
+
+    .course-card {
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        padding: 15px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        width: 100%; /* Full width */
+        box-sizing: border-box;
+        margin-bottom: 20px; /* Add margin between cards */
+        transition: background-color 0.3s;
+    }
+
+        .course-card:hover {
+            background-color: #e0e0e0;
+        }
+
+    .btn-manage-course {
+        display: inline-block;
+        padding: 8px 16px;
+        margin-top: 10px;
+        background-color: #007bff;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+    }
+
+        .btn-manage-course:hover {
+            background-color: #0056b3;
+        }
+
+    .course-description {
+        margin-top: 10px;
+        color: #555;
+    }
+</style>
+<div class="container">
+    <h2>Course List</h2>
+    <div class="row" style="height:25px"></div>
+    <div class="course-cards">
+        @foreach (var course in Model.CoursesList)
+        {
+            <div class="course-card">
+                <h3>@course.CourseTitle</h3>
+                <p>Course Code: @course.CourseCode</p>
+                <p class="course-description">@course.CourseDescription</p>
+                <a href="/Instructor/ManageInstructor/ManageCourse?courseCode=@course.CourseCode" class="btn btn-primary btn-manage-course">Manage Course</a>
+                <a href="/Instructor/ManageInstructor/ListSections?courseCode=@course.CourseCode" class="btn btn-primary btn-manage-course">View Course Sections</a>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

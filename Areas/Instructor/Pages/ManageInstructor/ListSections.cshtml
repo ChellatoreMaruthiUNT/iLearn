@@ -1,0 +1,67 @@
+﻿@page
+@model iLearn.Views.Instructor.ListSectionsModel
+@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .container {
+        max-width: 1200px; /* Adjust the max-width to make the container wider */
+        margin: 0 auto;
+    }
+
+    .section-card {
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        padding: 15px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        width: 100%; /* Full width */
+        box-sizing: border-box;
+        margin-bottom: 20px; /* Add margin between cards */
+        transition: background-color 0.3s;
+    }
+
+        .section-card:hover {
+            background-color: #e0e0e0;
+        }
+
+    .btn-manage-section {
+        display: inline-block;
+        padding: 8px 16px;
+        margin-top: 10px;
+        background-color: #007bff;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+    }
+
+        .btn-manage-section:hover {
+            background-color: #0056b3;
+        }
+
+    .section-description {
+        margin-top: 10px;
+        color: #555;
+    }
+</style>
+<div class="container">
+    <h2>Sections List</h2>
+    <div class="row" style="height:25px"></div>
+    <div class="section-cards">
+        @foreach (var sectionItem in Model.SectionsList)
+        {
+            <div class="section-card">
+                <h3>@sectionItem.SectionTitle</h3>
+                <p>Section Id: @sectionItem.SectionId</p>
+                <p class="section-description">@sectionItem.SectionDesscription</p>
+                <a href="/Instructor/ManageInstructor/ManageSection?sectionId=@sectionItem.SectionId" class="btn btn-primary btn-manage-section">Manage Section</a>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

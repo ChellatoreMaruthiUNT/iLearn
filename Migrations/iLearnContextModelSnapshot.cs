@@ -243,6 +243,9 @@ namespace iLearn.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("InstructorId")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsInstructor")
                         .HasColumnType("bit");
 

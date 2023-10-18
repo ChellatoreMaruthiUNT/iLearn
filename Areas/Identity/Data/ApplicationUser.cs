@@ -8,5 +8,6 @@ namespace iLearn.Areas.Identity.Data
         public string LastName { get; set; }
         public string CountryCode { get; set; }
         public bool IsInstructor { get; set; }
+        public int InstructorId { get; set; }
     }
 }
