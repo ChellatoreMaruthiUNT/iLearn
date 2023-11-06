@@ -4,6 +4,7 @@ using iLearn.iLearnDbModels;
 using iLearn.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
 
@@ -40,12 +41,14 @@ namespace iLearn.Views.Instructor
         {
             [Required]
             [DataType(DataType.Text)]
+            [MaxLength(200)]
             [Display(Name = "Section Title")]
             public string Title { get; set; }
 
             [Required]
             [DataType(DataType.Text)]
             [Display(Name = "Section Description")]
+            [MaxLength(8000)]
             public string Description { get; set; }
             [Required]
             [DataType(DataType.Text)]
@@ -82,13 +85,54 @@ namespace iLearn.Views.Instructor
             }
         }
 
-        public IActionResult OnPost()
+        public async Task<IActionResult> OnPost()
         {
             string fileNameFromAzure = string.Empty;
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    if (ModelState.GetFieldValidationState("Input.EvaluationId") == ModelValidationState.Invalid)
+                    {
+                        if(Input.IsEvaluationMandatory)
+                        {
+                            if(Input.EvaluationId == 0)
+                            {
+                                ModelState.AddModelError(String.Empty, "If evaluation is marked mandatory. You must create evaluation with atleast one question");
+                            }
+                        }
+                        else
+                        {
+                            ModelState.Remove("Input.EvaluationId");
+                        }
+                        
+                    }
+                }
                 if (SectionFile != null && SectionFile.Length > 0)
                 {
+                    // allowed size is 4MB
+                    long allowedSize = 1048576 * 4; 
+                    if(SectionFile.Length > allowedSize)
+                    {
+                        ModelState.AddModelError("SectionFile", "Allowed file limit is 4MB.");
+                    }
+                    if(!ModelState.IsValid)
+                    {
+                        var user = await _userManager.FindByEmailAsync(User.Identity.Name);
+                        var courses = _courseService.GetCoursesByIntructor(user.InstructorId);
+                        if (courses != null)
+                        {
+                            foreach (var item in courses)
+                            {
+                                CoursesList.Add(new CourseViewModel()
+                                {
+                                    CourseCode = item.CourseCode,
+                                    CourseTitle = item.CourseTitle
+                                });
+                            }
+                        }
+                        return Page();
+                    }
                     string tempDir = Path.GetTempPath();
                     var fileName = Guid.NewGuid().ToString("N") + Path.GetExtension(SectionFile.FileName);
                     string destinationFilePath = Path.Combine(Path.GetTempPath(), fileName);

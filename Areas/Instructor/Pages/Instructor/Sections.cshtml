@@ -98,7 +98,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-floating">
-                        <input type="file" asp-for="SectionFile" class="form-control" autocomplete="Document" aria-required="true" />
+                        <input type="file" asp-for="SectionFile" id="fileUpload" class="form-control" autocomplete="Document" aria-required="true" />
                         <span asp-validation-for="SectionFile" class="text-danger"></span>
                     </div>
                 </div>
@@ -180,11 +180,6 @@
 
         var questionNumber = 1; // Initialize question number
         function loadPopupContent() {
-            // Use jQuery to load the content of PopupPage into the #popupContainer
-            // $("#popupContainer").load("/Instructor/Instructor/Evaluations #modalEvaluation", function () {
-            //     openModal();
-            // });
-            // if(#)
             
             var checkbox = document.getElementById('isEvaluationMandatoryCheckbox');
             console.log(checkbox.checked)
@@ -441,5 +436,20 @@
             inputElement.after(errorElement);
         }
 
+
+        function checkFileSize() {
+            var fileInput = document.getElementById("fileUpload");
+            if (fileInput.files.length > 0) {
+                var file = fileInput.files[0];
+                var maxSizeInBytes = (4 * 1048576); // Replace with your desired maximum file size in bytes (1 MB in this example).
+
+                if (file.size > maxSizeInBytes) {
+                    alert("File size exceeds the allowed limit.");
+                    return;
+                }
+                // If the file size is within the limit, you can proceed with form submission.
+                document.querySelector("form").submit();
+            }
+        }
     </script>
 }
