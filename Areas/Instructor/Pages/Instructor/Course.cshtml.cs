@@ -31,11 +31,13 @@ namespace iLearn.Views.Instructor
         {
             [Required]
             [DataType(DataType.Text)]
+            [MaxLength(200)]
             [Display(Name = "Course Title")]
             public string Title { get; set; }
 
             [Required]
             [DataType(DataType.Text)]
+            [MaxLength(8000)]
             [Display(Name = "Course Description")]
             public string Description { get; set; }
 

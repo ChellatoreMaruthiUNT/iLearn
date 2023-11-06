@@ -67,6 +67,10 @@ namespace FanKart.Areas.Identity.Pages.Account.Manage
 
         public async Task<IActionResult> OnPostAsync()
         {
+            if(Input.NewPassword == Input.OldPassword) 
+            {
+                ModelState.AddModelError("Input.NewPassword", "New password can not be same as current password");
+            }
             if (!ModelState.IsValid)
             {
                 return Page();

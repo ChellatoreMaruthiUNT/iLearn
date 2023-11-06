@@ -5,6 +5,7 @@ using iLearn.iLearnDbModels;
 using iLearn.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
 
@@ -42,6 +43,7 @@ namespace iLearn.Views.Instructor
             [Required]
             [DataType(DataType.Text)]
             [Display(Name = "Section Title")]
+            [MaxLength(200)]
             public string Title { get; set; }
 
             [Required]
@@ -80,13 +82,38 @@ namespace iLearn.Views.Instructor
             };
         }
 
-        public void OnPost()
+        public async Task<IActionResult> OnPost()
         {
+            var sectionId = Input.SectionId;
             try
             {
+                ModelState.Remove("Input.CourseCodeSelected");
+                ModelState.Remove("Input.CourseTitle");
                 string fileNameFromAzure = string.Empty;
                 if (SectionFile != null && SectionFile.Length > 0)
                 {
+                    long allowedSize = 1048576 * 4;
+                    if (SectionFile.Length > allowedSize)
+                    {
+                        ModelState.AddModelError("SectionFile", "Allowed file limit is 4MB.");
+                    }
+                    if (!ModelState.IsValid)
+                    {
+                        var user = await _userManager.FindByEmailAsync(User.Identity.Name);
+                        var courses = _courseService.GetCoursesByIntructor(user.InstructorId);
+                        if (courses != null)
+                        {
+                            foreach (var item in courses)
+                            {
+                                CoursesList.Add(new CourseViewModel()
+                                {
+                                    CourseCode = item.CourseCode,
+                                    CourseTitle = item.CourseTitle
+                                });
+                            }
+                        }
+                        return Page();
+                    }
                     string tempDir = Path.GetTempPath();
                     var fileName = Guid.NewGuid().ToString("N") + Path.GetExtension(SectionFile.FileName);
                     string destinationFilePath = Path.Combine(Path.GetTempPath(), fileName);
@@ -99,6 +126,7 @@ namespace iLearn.Views.Instructor
                     fileNameFromAzure = _fileStorageService.UploadFile(destinationFilePath, Input.CourseCode);
                     System.IO.File.Delete(destinationFilePath);
                 }
+                
                 // update section
                 CourseSection section = new CourseSection()
                 {
@@ -119,7 +147,7 @@ namespace iLearn.Views.Instructor
             {
                 ErrorMessage = "Could not edit section. Please try again later.";
             }
-
+            return RedirectToPage(new { sectionId = sectionId});
         }
     }
 }

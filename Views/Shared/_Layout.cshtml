@@ -25,17 +25,21 @@
                     <a class="navbar-brand" style="color:white !important" asp-area="" asp-controller="Home" asp-action="Index">
                         <img src="~/ilearn_logo.png" alt="iLearn" style="max-height: 80px; max-width: 150px;">
                     </a>
-                    <div class="input-group" style="width:600px">
-                        <input type="text" class="form-control" aria-label="Text input with dropdown button" style="max-width:500px">
-                        <div class="input-group-append">
-                            <button class="btn btn-outline-secondary dropdown-toggle" id="dropdown-header" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Actions</button>
-                            <div class="header-dropdown-menu" style="display:none; position: absolute">
-                                <a class="dropdown-item" asp-area="Instructor" asp-page="/Instructor/Course">Create Course</a>
-                                <a class="dropdown-item" asp-area="Instructor" asp-page="/Instructor/Sections">Create Sections</a>
-                                <a class="dropdown-item" asp-area="Instructor" asp-page="/ManageInstructor/ListCourses">View Courses</a>
+                    @if (ViewContext.ActionDescriptor.RouteValues["controller"]?.ToString() == "Home")
+                    {
+                        <div class="input-group" style="width:600px">
+                            <input type="text" class="form-control" aria-label="Text input with dropdown button" style="max-width:500px">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary dropdown-toggle" id="dropdown-header" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Actions</button>
+                                <div class="header-dropdown-menu" style="display:none; position: absolute">
+                                    <a class="dropdown-item" asp-area="Instructor" asp-page="/Instructor/Course">Create Course</a>
+                                    <a class="dropdown-item" asp-area="Instructor" asp-page="/Instructor/Sections">Create Sections</a>
+                                    <a class="dropdown-item" asp-area="Instructor" asp-page="/ManageInstructor/ListCourses">View Courses</a>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    }
+                        
                 }
                 else
                 {
@@ -58,8 +62,8 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-
+    <footer class="border-top footer text-muted" style="text-align:center">
+        <div>iLearn-v1.0</div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
