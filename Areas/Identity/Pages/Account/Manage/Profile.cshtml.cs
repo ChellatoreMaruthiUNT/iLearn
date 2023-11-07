@@ -40,6 +40,7 @@ namespace FanKart.Areas.Identity.Pages.Account.Manage
             [Required]
             [EmailAddress]
             [Display(Name = "Email")]
+            [MaxLength(100)]
             public string Email { get; set; }
             [Required]
             [DataType(DataType.PhoneNumber)]
@@ -48,21 +49,26 @@ namespace FanKart.Areas.Identity.Pages.Account.Manage
             [Required]
             [DataType(DataType.Text)]
             [Display(Name = "First Name")]
+            [MaxLength(20)]
             public string FirstName { get; set; }
             [Required]
             [DataType(DataType.Text)]
+            [MaxLength(20)]
             [Display(Name = "Last   Name")]
             public string LastName { get; set; }
             [Required]
             [DataType(DataType.Text)]
+            [MaxLength(200)]
             [Display(Name = "Expereince")]
             public string Experience { get; set; }
             [Required]
             [DataType(DataType.Text)]
+            [MaxLength(500)]
             [Display(Name = "Certifications")]
             public string Certifications { get; set; }
             [Required]
             [DataType(DataType.Text)]
+            [MaxLength(8000)]
             [Display(Name = "Description")]
             public string Description { get; set; }
             public int InstructorId { get; set; }

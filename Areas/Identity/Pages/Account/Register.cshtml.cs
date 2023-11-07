@@ -77,11 +77,13 @@ namespace iLearn.Areas.Identity.Pages.Account
             [Required]
             [DataType(DataType.Text)]
             [Display(Name = "First Name")]
+            [MaxLength(20)]
             public string FirstName { get; set; }
 
             [Required]
             [DataType(DataType.Text)]
             [Display(Name = "Last   Name")]
+            [MaxLength(20)]
             public string LastName { get; set; }
 
             [Display(Name = "Check if you are registering as instructor")]
