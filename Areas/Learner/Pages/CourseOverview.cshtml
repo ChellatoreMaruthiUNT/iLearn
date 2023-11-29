@@ -1,0 +1,185 @@
+﻿@page
+@model iLearn.Views.Learner.CourseOverviewModel
+@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+}
+
+<div class="courseOverviewContainer">
+    <div class="headerCourseOverviewContainer">
+        <h1>@Model.Course.CourseTitle</h1>
+        <p>By @Model.Course.Instructor.InstructorFirstName @Model.Course.Instructor.InstructorLastName</p>
+    </div>
+        <section class="course-details">
+            <div class="description">
+                <h2>About the Course</h2>
+                <p>@Model.Course.CourseDescription</p>
+                <p>Duration: @Model.Course.Duration Minutes</p>
+            </div>
+            <div class="enrollment">
+                <input type="hidden" id="courseCode" value="@Model.Course.CourseCode" />
+                <button type="submit" class="enroll-button">Enroll Course</button>
+            </div>
+        </section>
+
+    <div class="row" style="height: 25px;"></div>
+
+    <h2>Course Sections</h2>
+    @for (int i = 0; i < Model.Course.CourseSections.Count; i++)
+    {
+        var sectionId = i + 1;
+        var item = Model.Course.CourseSections.ToList()[i];
+        <section class="sections">
+            <div class="section">
+                <h3>Section @sectionId : @item.SectionTitle</h3>
+                <p>Duration: @item.SectionDuration Minutes</p>
+                <p>@item.SectionDescription</p>
+            </div>
+        </section>
+    }
+</div>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(document).on("click", ".enroll-button", function () {
+                var courseCode = $('#courseCode').val();
+                $.ajax({
+                    url: "/Learner/EnrollCourse", // Replace with your actual URL
+                    type: "POST",
+                    data: {
+                        courseCode: courseCode
+                    },
+                    success: function (response) {
+                        var redirectUrl = response.redirectUrl;
+                        window.location.href = redirectUrl;
+                    },
+                    error: function (error) {
+                        //showMessage("error", "Could not add the product to the cart at the moment. Try again later.");
+                    }
+                });                
+            });
+        });
+    </script>
+
+    <style>
+
+        .headerCourseOverviewContainer {
+            background-color: #04102C;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin: 0;
+        }
+
+        .courseOverviewContainer {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            border-radius: 5px;
+        }
+
+        .course-details {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #ccc;
+            padding: 20px 0;
+        }
+
+        .description {
+            flex: 1;
+            min-width: 900px;
+        }
+
+            .description h2 {
+                font-size: 20px;
+            }
+
+        .enrollment {
+            flex: 1;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .enroll-button {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+            .enroll-button:hover {
+                background-color: #218838;
+            }
+
+        .progress {
+            text-align: center;
+        }
+
+        .progress-bar {
+            background-color: #007bff;
+            height: 20px;
+            width: 50%; /* Adjust to represent actual progress */
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+            .progress-bar p {
+                margin: 0;
+                color: #333;
+                font-weight: bold;
+            }
+
+        .sections {
+            padding: 20px 0;
+        }
+
+            .sections h2 {
+                font-size: 20px;
+            }
+
+        .section {
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e0e0e0;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+
+        section h3 {
+            font-size: 18px;
+        }
+
+        .start-button {
+            background-color: #04102C;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+            .start-button:hover {
+                background-color: #0056b3;
+            }
+    </style>
+}

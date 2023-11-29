@@ -63,6 +63,7 @@ namespace iLearn.Views.Instructor
             public int SectionId { get; set; }
             public string CourseCode { get; set; }
             public int EvaluationId { get; set; }
+            public int SectionDurationBeforeEdit { get; set; }
         }
         public async void OnGet(int sectionId)
         {
@@ -78,7 +79,8 @@ namespace iLearn.Views.Instructor
                 CourseCode = section.CourseCode,
                 CourseCodeSelected = section.CourseCode,
                 CourseTitle = course.CourseTitle,
-                EvaluationId = section.EvalutationId ?? 0
+                EvaluationId = section.EvalutationId ?? 0,
+                SectionDurationBeforeEdit = section.SectionDuration ?? 0
             };
         }
 
@@ -139,7 +141,7 @@ namespace iLearn.Views.Instructor
                     CourseContentPath = fileNameFromAzure,
                     EvalutationId = Input.EvaluationId
                 };
-                _sectionsService.EditSection(section);
+                _sectionsService.EditSection(section, (section.SectionDuration ?? 0) - Input.SectionDurationBeforeEdit);
                 Input = new InputModel();
                 SuccessMessage = "Edit section successful";
             }

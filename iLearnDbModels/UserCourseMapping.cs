@@ -12,7 +12,9 @@ namespace iLearn.iLearnDbModels
         public int? CurrentSectionId { get; set; }
         public DateTime? CreatedOn { get; set; }
         public DateTime? ModifiedOn { get; set; }
-
+        public bool? IsCourseComplete { get; set; }
+        public bool? IsReminderTurndedOn { get; set; }
+        
         public virtual Course? CourseCodeNavigation { get; set; }
         public virtual CourseSection? CurrentSection { get; set; }
     }

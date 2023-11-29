@@ -1,0 +1,176 @@
+﻿@page
+@model iLearn.Views.Learner.EnrolledCoursesModel
+@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+}
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+<style>
+    .bodyCards {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        padding: 20px;
+    }
+
+    .card {
+        width: 100%;
+        background-color: #fff;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        /* text-align: center; */
+    }
+
+        .card img {
+            max-width: 100%;
+            height: auto;
+            object-fit: cover;
+        }
+
+    .card-content {
+        padding: 20px;
+        background-color: #f9f9f9;
+        color: #04102C;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between
+    }
+
+        .card-content h3 {
+            font-size: 1.5rem;
+            margin: 0;
+        }
+
+        .card-content p {
+            margin: 10px 0;
+        }
+
+    .no-items-div {
+        justify-content: center;
+        font-size: 25px;
+        margin-top: 100px;
+    }
+
+    .gif-button {
+        width: 100px; /* Set the width of the button */
+        height: 100px; /* Set the height of the button */
+        background: url('/images/bellicon.gif') center center no-repeat;
+        background-image: url('/images/bellicon.gif');
+        background-size: cover;
+        border: none;
+        cursor: pointer; /* Add a pointer cursor to indicate interactivity */
+    }
+</style>
+@{
+    var noImageAvaialble = "/images/imagenotavailable.png";
+    var basePath = "/imagesPNG/";
+    var items = Model.UserCourseMappings.ToList();
+
+    @if (items.Count > 0)
+    {
+    <div class="bodyCards">
+
+                        @for (int i = 0; i < items.Count; i++)
+            {
+                var item = items[i];
+                var hasAssessment = "Yes";
+                if (!@item.CourseCodeNavigation.IsEvaluationRequired ?? false)
+                {
+                    hasAssessment = "No";
+                }
+                var hasCertification = "Yes";
+                if (!@item.CourseCodeNavigation.IsCertificationProvided ?? false)
+                {
+                    hasCertification = "No";
+                }
+
+                            <div class="card">
+                                <img src="@noImageAvaialble" alt="Card Image">
+                                <div class="card-content">
+                                    <h4>@item.CourseCodeNavigation.CourseTitle</h4>
+                                    <p>@item.CourseCodeNavigation.CourseDescription</p>
+                                    <p>Duration: @item.CourseCodeNavigation.Duration</p>
+                                    <p>Instructor : @item.CourseCodeNavigation.Instructor.InstructorLastName @item.CourseCodeNavigation.Instructor.InstructorFirstName</p>
+                                    <p>Includes Assessment : @hasAssessment</p>
+                                    <p>Includes Certificate : @hasCertification</p>
+                                    <div class="row">
+                                        <a style="width:80%" class="btn btn-lg btn-primary" asp-area="Learner" asp-page="/CourseProgress" asp-route-courseCode="@item.CourseCode">Continue learning</a>
+                                        <span style="width:10%"></span>
+                            <button class="btn btn-lg btn-primary notification @(@item.IsReminderTurndedOn ?? false ? "ON" : "OFF")" id="@item.CourseCode" style="width:10%">
+                                            @if(@item.IsReminderTurndedOn ?? false)
+                                {
+                                                <svg viewBox="0 0 16 16" style="color: inherit; font-family: initial; font-feature-settings: initial; font-kerning: initial; font-optical-sizing: initial; font-palette: initial; font-size: inherit; font-stretch: initial; font-style: initial; font-synthesis: initial; font-variant: initial; font-variation-settings: initial; font-weight: initial; forced-color-adjust: initial; text-orientation: initial; text-rendering: initial; -webkit-font-smoothing: initial; -webkit-locale: initial; -webkit-text-orientation: initial; -webkit-writing-mode: initial; writing-mode: initial; zoom: initial; accent-color: initial; place-content: initial; place-items: initial; place-self: initial; alignment-baseline: initial; animation-composition: initial; animation: initial; app-region: initial; appearance: initial; aspect-ratio: initial; backdrop-filter: initial; backface-visibility: initial; background: initial; background-blend-mode: initial; baseline-shift: initial; baseline-source: initial; block-size: initial; border-block: initial; border: initial; border-radius: initial; border-collapse: initial; border-end-end-radius: initial; border-end-start-radius: initial; border-inline: initial; border-start-end-radius: initial; border-start-start-radius: initial; inset: initial; box-shadow: initial; box-sizing: initial; break-after: initial; break-before: initial; break-inside: initial; buffered-rendering: initial; caption-side: initial; caret-color: initial; clear: initial; clip: initial; clip-path: initial; clip-rule: initial; color-interpolation: initial; color-interpolation-filters: initial; color-rendering: initial; color-scheme: initial; columns: initial; column-fill: initial; gap: initial; column-rule: initial; column-span: initial; contain: initial; contain-intrinsic-block-size: initial; contain-intrinsic-size: initial; contain-intrinsic-inline-size: initial; container: initial; content: initial; content-visibility: initial; counter-increment: initial; counter-reset: initial; counter-set: initial; cursor: pointer; cx: initial; cy: initial; d: initial; display: initial; dominant-baseline: initial; empty-cells: initial; fill: initial; fill-opacity: initial; fill-rule: initial; filter: initial; flex: initial; flex-flow: initial; float: initial; flood-color: initial; flood-opacity: initial; grid: initial; grid-area: initial; height: 1.3em; hyphenate-character: initial; hyphenate-limit-chars: initial; hyphens: initial; image-orientation: initial; image-rendering: initial; initial-letter: initial; inline-size: initial; inset-block: initial; inset-inline: initial; isolation: initial; letter-spacing: initial; lighting-color: initial; line-break: initial; line-height: initial; list-style: initial; margin-block: initial; margin-bottom: initial; margin-inline: initial; margin-left: initial; margin-right: 0.5em; margin-top: initial; marker: initial; mask: initial; mask-type: initial; math-depth: initial; math-shift: initial; math-style: initial; max-block-size: initial; max-height: initial; max-inline-size: initial; max-width: initial; min-block-size: initial; min-height: initial; min-inline-size: initial; min-width: initial; mix-blend-mode: initial; object-fit: initial; object-position: initial; object-view-box: initial; offset: initial; opacity: initial; order: initial; orphans: initial; outline: initial; outline-offset: initial; overflow-anchor: initial; overflow-clip-margin: initial; overflow-wrap: initial; overflow: initial; overlay: initial; overscroll-behavior-block: initial; overscroll-behavior-inline: initial; overscroll-behavior: initial; padding-block: initial; padding: initial; padding-inline: initial; page: initial; page-orientation: initial; paint-order: initial; perspective: initial; perspective-origin: initial; pointer-events: initial; position: initial; quotes: initial; r: initial; resize: initial; rotate: initial; ruby-position: initial; rx: initial; ry: initial; scale: initial; scroll-behavior: initial; scroll-margin-block: initial; scroll-margin: initial; scroll-margin-inline: initial; scroll-padding-block: initial; scroll-padding: initial; scroll-padding-inline: initial; scroll-snap-align: initial; scroll-snap-stop: initial; scroll-snap-type: initial; scroll-timeline: initial; scrollbar-gutter: initial; shape-image-threshold: initial; shape-margin: initial; shape-outside: initial; shape-rendering: initial; size: initial; speak: initial; stop-color: initial; stop-opacity: initial; stroke: initial; stroke-dasharray: initial; stroke-dashoffset: initial; stroke-linecap: initial; stroke-linejoin: initial; stroke-miterlimit: initial; stroke-opacity: initial; stroke-width: initial; tab-size: initial; table-layout: initial; text-align: initial; text-align-last: initial; text-anchor: initial; text-combine-upright: initial; text-decoration: initial; text-decoration-skip-ink: initial; text-emphasis: initial; text-emphasis-position: initial; text-indent: initial; text-overflow: initial; text-shadow: initial; text-size-adjust: initial; text-transform: initial; text-underline-offset: initial; text-underline-position: initial; white-space: initial; timeline-scope: initial; touch-action: initial; transform: initial; transform-box: initial; transform-origin: initial; transform-style: initial; transition: initial; translate: initial; user-select: initial; vector-effect: initial; vertical-align: middle; view-timeline: initial; view-transition-name: initial; visibility: initial; border-spacing: initial; -webkit-box-align: initial; -webkit-box-decoration-break: initial; -webkit-box-direction: initial; -webkit-box-flex: initial; -webkit-box-ordinal-group: initial; -webkit-box-orient: initial; -webkit-box-pack: initial; -webkit-box-reflect: initial; -webkit-line-break: initial; -webkit-line-clamp: initial; -webkit-mask-box-image: initial; -webkit-mask: initial; -webkit-mask-composite: initial; -webkit-print-color-adjust: initial; -webkit-rtl-ordering: initial; -webkit-ruby-position: initial; -webkit-tap-highlight-color: initial; -webkit-text-combine: initial; -webkit-text-decorations-in-effect: initial; -webkit-text-fill-color: initial; -webkit-text-security: initial; -webkit-text-stroke: initial; -webkit-user-drag: initial; -webkit-user-modify: initial; widows: initial; width: 1.3em; will-change: initial; word-break: initial; word-spacing: initial; x: initial; y: initial; z-index: initial;">
+                                                    <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zM8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3-6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32-4.2 1.22 6z" fill="currentColor"></path>
+                                                    <line x1="2" y1="14" x2="14" y2="2" stroke="#fff" stroke-width="2" />
+                                                </svg>
+                                }
+                                else
+                                {
+                                                <svg viewBox="0 0 16 16" style="color: inherit; font-family: initial; font-feature-settings: initial; font-kerning: initial; font-optical-sizing: initial; font-palette: initial; font-size: inherit; font-stretch: initial; font-style: initial; font-synthesis: initial; font-variant: initial; font-variation-settings: initial; font-weight: initial; forced-color-adjust: initial; text-orientation: initial; text-rendering: initial; -webkit-font-smoothing: initial; -webkit-locale: initial; -webkit-text-orientation: initial; -webkit-writing-mode: initial; writing-mode: initial; zoom: initial; accent-color: initial; place-content: initial; place-items: initial; place-self: initial; alignment-baseline: initial; animation-composition: initial; animation: initial; app-region: initial; appearance: initial; aspect-ratio: initial; backdrop-filter: initial; backface-visibility: initial; background: initial; background-blend-mode: initial; baseline-shift: initial; baseline-source: initial; block-size: initial; border-block: initial; border: initial; border-radius: initial; border-collapse: initial; border-end-end-radius: initial; border-end-start-radius: initial; border-inline: initial; border-start-end-radius: initial; border-start-start-radius: initial; inset: initial; box-shadow: initial; box-sizing: initial; break-after: initial; break-before: initial; break-inside: initial; buffered-rendering: initial; caption-side: initial; caret-color: initial; clear: initial; clip: initial; clip-path: initial; clip-rule: initial; color-interpolation: initial; color-interpolation-filters: initial; color-rendering: initial; color-scheme: initial; columns: initial; column-fill: initial; gap: initial; column-rule: initial; column-span: initial; contain: initial; contain-intrinsic-block-size: initial; contain-intrinsic-size: initial; contain-intrinsic-inline-size: initial; container: initial; content: initial; content-visibility: initial; counter-increment: initial; counter-reset: initial; counter-set: initial; cursor: pointer; cx: initial; cy: initial; d: initial; display: initial; dominant-baseline: initial; empty-cells: initial; fill: initial; fill-opacity: initial; fill-rule: initial; filter: initial; flex: initial; flex-flow: initial; float: initial; flood-color: initial; flood-opacity: initial; grid: initial; grid-area: initial; height: 1.3em; hyphenate-character: initial; hyphenate-limit-chars: initial; hyphens: initial; image-orientation: initial; image-rendering: initial; initial-letter: initial; inline-size: initial; inset-block: initial; inset-inline: initial; isolation: initial; letter-spacing: initial; lighting-color: initial; line-break: initial; line-height: initial; list-style: initial; margin-block: initial; margin-bottom: initial; margin-inline: initial; margin-left: initial; margin-right: 0.5em; margin-top: initial; marker: initial; mask: initial; mask-type: initial; math-depth: initial; math-shift: initial; math-style: initial; max-block-size: initial; max-height: initial; max-inline-size: initial; max-width: initial; min-block-size: initial; min-height: initial; min-inline-size: initial; min-width: initial; mix-blend-mode: initial; object-fit: initial; object-position: initial; object-view-box: initial; offset: initial; opacity: initial; order: initial; orphans: initial; outline: initial; outline-offset: initial; overflow-anchor: initial; overflow-clip-margin: initial; overflow-wrap: initial; overflow: initial; overlay: initial; overscroll-behavior-block: initial; overscroll-behavior-inline: initial; overscroll-behavior: initial; padding-block: initial; padding: initial; padding-inline: initial; page: initial; page-orientation: initial; paint-order: initial; perspective: initial; perspective-origin: initial; pointer-events: initial; position: initial; quotes: initial; r: initial; resize: initial; rotate: initial; ruby-position: initial; rx: initial; ry: initial; scale: initial; scroll-behavior: initial; scroll-margin-block: initial; scroll-margin: initial; scroll-margin-inline: initial; scroll-padding-block: initial; scroll-padding: initial; scroll-padding-inline: initial; scroll-snap-align: initial; scroll-snap-stop: initial; scroll-snap-type: initial; scroll-timeline: initial; scrollbar-gutter: initial; shape-image-threshold: initial; shape-margin: initial; shape-outside: initial; shape-rendering: initial; size: initial; speak: initial; stop-color: initial; stop-opacity: initial; stroke: initial; stroke-dasharray: initial; stroke-dashoffset: initial; stroke-linecap: initial; stroke-linejoin: initial; stroke-miterlimit: initial; stroke-opacity: initial; stroke-width: initial; tab-size: initial; table-layout: initial; text-align: initial; text-align-last: initial; text-anchor: initial; text-combine-upright: initial; text-decoration: initial; text-decoration-skip-ink: initial; text-emphasis: initial; text-emphasis-position: initial; text-indent: initial; text-overflow: initial; text-shadow: initial; text-size-adjust: initial; text-transform: initial; text-underline-offset: initial; text-underline-position: initial; white-space: initial; timeline-scope: initial; touch-action: initial; transform: initial; transform-box: initial; transform-origin: initial; transform-style: initial; transition: initial; translate: initial; user-select: initial; vector-effect: initial; vertical-align: middle; view-timeline: initial; view-transition-name: initial; visibility: initial; border-spacing: initial; -webkit-box-align: initial; -webkit-box-decoration-break: initial; -webkit-box-direction: initial; -webkit-box-flex: initial; -webkit-box-ordinal-group: initial; -webkit-box-orient: initial; -webkit-box-pack: initial; -webkit-box-reflect: initial; -webkit-line-break: initial; -webkit-line-clamp: initial; -webkit-mask-box-image: initial; -webkit-mask: initial; -webkit-mask-composite: initial; -webkit-print-color-adjust: initial; -webkit-rtl-ordering: initial; -webkit-ruby-position: initial; -webkit-tap-highlight-color: initial; -webkit-text-combine: initial; -webkit-text-decorations-in-effect: initial; -webkit-text-fill-color: initial; -webkit-text-security: initial; -webkit-text-stroke: initial; -webkit-user-drag: initial; -webkit-user-modify: initial; widows: initial; width: 1.3em; will-change: initial; word-break: initial; word-spacing: initial; x: initial; y: initial; z-index: initial;">
+                                                    <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zM8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6z" fill="currentColor"></path>
+                                                </svg>
+                                }
+                                        </button>
+                                    </div>
+                                    </div>
+                            </div>
+            }
+    </div>
+    }
+    else
+    {
+    <div class="row no-items-div">No courses enrolled at the moment.</div>
+    }
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script type="text/javascript">
+
+        var currentUrl = window.location.href;
+        if (currentUrl.indexOf('?isNotification') !== -1) {
+            if (currentUrl.indexOf('?isNotification=on') !== -1) {
+                showMessage('success', "Notifications turned On") 
+            }
+            else
+            {
+                showMessage('success', "Notifications turned Off")
+            }
+        }
+        $('.notification').on('click', function(){
+            var courseCode = $(this).attr('id');
+            var turnOnNotification = $(this).hasClass('ON') ? false : true;
+            var data = {
+                courseCode: courseCode,
+                turnOnNotification: turnOnNotification
+            };
+            $.ajax({
+                url: "/Learner/SetReminder",
+                contentType: "application/json",
+                data: {
+                    courseCode: courseCode,
+                    turnOnNotification: turnOnNotification
+                },
+                success: function (data) {
+                    var thisUrl = window.location.href;
+                    thisUrl = thisUrl.replace(/(\?|&)isNotification=[^&]*/, '');
+                    
+                        if (turnOnNotification) {
+                            thisUrl = thisUrl + (thisUrl.includes('?') ? '&' : '?') + 'isNotification=on';
+                        }
+                        else {
+                            thisUrl = thisUrl + (thisUrl.includes('?') ? '&' : '?') + 'isNotification=off';
+                        }
+                        window.location.href = thisUrl;
+                },
+                error: function(){
+                    console.log('error')
+                }
+            });
+        })    
+    </script>
+}

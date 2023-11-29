@@ -31,9 +31,9 @@ namespace iLearn.Controllers
             foreach (var question in FormData.Questions)
             {
                 List<QuestionOptionsMapping> options = new List<QuestionOptionsMapping>();
+                Int16 optionId = 1;
                 foreach (var option in question.Options)
-                {
-                    Int16 optionId = 1;
+                {                    
                     options.Add(new QuestionOptionsMapping()
                     {
                         CreatdOn = DateTime.Now,
@@ -41,6 +41,7 @@ namespace iLearn.Controllers
                         OptionId = optionId,
                         OptionDesc = option ?? string.Empty
                     });
+                    optionId++;
                 }
                 questions.Add(new Question()
                 {

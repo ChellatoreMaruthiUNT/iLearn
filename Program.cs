@@ -8,6 +8,15 @@ using Microsoft.AspNetCore.Http.Features;
 using Azure.Identity;
 using iLearn.iLearnDbModels;
 using System.Configuration;
+using DinkToPdf.Contracts;
+using DinkToPdf;
+using Hangfire;
+using Hangfire.SqlServer;
+using PdfSharp.Charting;
+using Microsoft.AspNetCore.Mvc.Filters;
+using iLearn.Authorization;
+using iLearn.HealthChecks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 //using iLearn.iLearnDbModels;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -49,16 +58,29 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<ISectionsService, SectionsService>();
 builder.Services.AddScoped<IEvaluationService, EvaluationService>();
+builder.Services.AddScoped<IJobsService, JobsService>();
+// Add Hangfire services.
+builder.Services.AddHangfire(configuration => configuration
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UseSqlServerStorage(connectionString));
 
+// Add the processing server as IHostedService
+builder.Services.AddHangfireServer();
 builder.Services.Configure<FormOptions>(options =>
 {
     options.MultipartBodyLengthLimit = 52428800; // 50 MB limit
 });
+
+builder.Services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
+builder.Services.AddHealthChecks();
+
 var app = builder.Build();
 
 
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
+app.UseExceptionHandler("/Home/Error");
+app.UseHsts();
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
@@ -69,8 +91,14 @@ app.UseAuthentication();;
 app.UseAuthorization();
 app.MapRazorPages();
 
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Landing}/{action=Index}/{id?}");
-
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+    Authorization = new[] { new HangfireDashboardAuthorizationFilter() }
+});
+app.MapHangfireDashboard();
+app.MapHealthChecks("/health");
 app.Run();

@@ -23,6 +23,7 @@ namespace iLearn.iLearnDbModels
         public virtual DbSet<Question> Questions { get; set; } = null!;
         public virtual DbSet<QuestionOptionsMapping> QuestionOptionsMappings { get; set; } = null!;
         public virtual DbSet<UserCourseMapping> UserCourseMappings { get; set; } = null!;
+        public virtual DbSet<Notifications> Notifications { get; set; } = null!;
 
         public int GetNextPrimaryKeyValue<TEntity>() where TEntity : class
         {

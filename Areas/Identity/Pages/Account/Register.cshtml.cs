@@ -118,20 +118,22 @@ namespace iLearn.Areas.Identity.Pages.Account
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
                     // if instructor create record in instructor table
-
-                    iLearnDbModels.Instructor instructor = new iLearnDbModels.Instructor()
+                    if(Input.IsInstructor)
                     {
-                        InstructorEmailId = user.Email,
-                        InstructorFirstName = user.FirstName,
-                        InstructorLastName = user.LastName,
-                        CreatedOn = DateTime.Now,
-                        ModifiedOn = DateTime.Now,
-                        UserId = user.Id,
-                        InstructorPhoneNumber = user.PhoneNumber,
-                    };
-                    instructor = _userService.CreateInstructor(instructor);
-                    user.InstructorId = instructor.InstructorId;
-                    await _userManager.UpdateAsync(user);
+                        iLearnDbModels.Instructor instructor = new iLearnDbModels.Instructor()
+                        {
+                            InstructorEmailId = user.Email,
+                            InstructorFirstName = user.FirstName,
+                            InstructorLastName = user.LastName,
+                            CreatedOn = DateTime.Now,
+                            ModifiedOn = DateTime.Now,
+                            UserId = user.Id,
+                            InstructorPhoneNumber = user.PhoneNumber,
+                        };
+                        instructor = _userService.CreateInstructor(instructor);
+                        user.InstructorId = instructor.InstructorId;
+                        await _userManager.UpdateAsync(user);
+                    }                    
                     var callbackUrl = Url.Page(
                         "/Account/ConfirmEmail",
                         pageHandler: null,

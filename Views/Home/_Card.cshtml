@@ -1,0 +1,63 @@
+﻿@using iLearn.iLearnDbModels;
+@{
+    ViewData["Title"] = "Home Page";
+}
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model List<CardViewModel>
+
+@{
+    var noImageAvaialble = "/images/imagenotavailable.png";
+    var basePath = "/imagesPNG/";
+    var items = Model.ToList();
+
+    @if (items.Count > 0)
+    {
+        <div class="bodyCards">  
+            
+            @for (int i = 0; i < items.Count; i++)
+            {
+                var item = items[i];
+                var hasAssessment = "Yes";
+                if (!@item.HasAssessment ?? false)
+                {
+                    hasAssessment = "No";
+                }
+                var hasCertification = "Yes";
+                if (!@item.HasCertification ?? false)
+                {
+                    hasCertification = "No";
+                }
+                
+                <div class="card">
+                    <img src="@noImageAvaialble" alt="Card Image">
+                    <div class="card-content">
+                        <h4>@item.CourseTitle</h4>
+                        <p>@item.CourseDescripton</p>
+                        <p>Duration: @item.Duration</p>
+                        <p>Instructor : @item.Instructor.InstructorLastName @item.Instructor.InstructorFirstName</p>
+                        <p>Includes Assessment : @hasAssessment</p>
+                        <p>Includes Certificate : @hasCertification</p>
+                        @if(@item.IsEnrolled)
+                        {
+                            <a class="btn btn-lg btn-primary enrollCourses" asp-area="Learner" asp-page="/CourseProgress" asp-route-courseCode="@item.CourseCode">Continue Learning</a>
+                        }
+                        else
+                        {
+                            <a class="btn btn-lg btn-primary enrollCourses" asp-area="Learner" asp-page="/CourseOverview" asp-route-courseCode="@item.CourseCode">Course overview</a>
+                        }                       
+                    </div>
+                </div>
+            }
+        </div>
+        }
+        else
+        {
+            <div class="row no-items-div">No courses to display for the selected filter or search criteria.</div>
+        }
+}
+
+
+
+
+
+                            

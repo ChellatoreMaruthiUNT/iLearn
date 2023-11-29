@@ -8,8 +8,10 @@ namespace iLearn.Services.Interfaces
     {
         public void CreateSection(CourseSection section);
         public List<CourseSection> GetSections(string courseCode);
-        public void EditSection(CourseSection section);
+        public void EditSection(CourseSection section, int sectionDurationBeforeEdit);
         public CourseSection GetSectionBySectionId(int sectionId);
+        public CourseSection ProceedToSection(int nextSectionId, string emailId);
         public void DeleteSection(CourseSection section);
+        public Tuple<int, int> GetPreviousAndNextSectionid(int currentSectionId);
     }
 }

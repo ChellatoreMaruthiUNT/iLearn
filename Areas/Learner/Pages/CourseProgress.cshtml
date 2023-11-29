@@ -1,0 +1,273 @@
+﻿@page
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model iLearn.Views.Learner.CourseProgressModel
+@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+    var currentSectionForProgress = 0;
+    var isCourseComplete = (Model.UserCourse.IsCourseComplete ?? false) ? "1" : "0";
+}
+
+    <div class="courseOverviewContainer">
+    <input id="hiddenIsCourseComplete" type="hidden" value="@isCourseComplete" />
+        <div class="headerCourseOverviewContainer">
+            <h1>@Model.UserCourse.CourseCodeNavigation.CourseTitle</h1>
+            <p>By @Model.UserCourse.CourseCodeNavigation.Instructor.InstructorFirstName @Model.UserCourse.CourseCodeNavigation.Instructor.InstructorLastName</p>
+        </div>
+        <section class="course-details">
+            @* <div class="description">
+                <h2>About the Course</h2>
+            <p>@Model.UserCourse.CourseCodeNavigation.CourseDescription</p>
+            <p>Duration: @Model.UserCourse.CourseCodeNavigation.Duration Minutes</p>
+            </div>
+            <div class="enrollment">
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                <div class="progress-text" id="progressText">0%</div>
+            </div> *@
+        <div>
+            <h2>About the Course</h2>
+           
+            <p>@Model.UserCourse.CourseCodeNavigation.CourseDescription</p>
+            <div style="display:flex">
+                <p style="width:90%">Duration: @Model.UserCourse.CourseCodeNavigation.Duration Minutes</p>
+                @if(@Model.UserCourse.IsCourseComplete ?? false)
+                {
+                    <a style="float:right; cursor:pointer" asp-area="Learner" asp-page="/DownloadCertificate" asp-route-courseCode="@Model.UserCourse.CourseCode">Get Certificate</a>
+                }        
+                else
+                {
+                    
+                }
+            </div>            
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="progress-text" id="progressText">0%</div>
+        </div>
+        </section>
+         <div class="row" style="height: 25px;"></div>    
+        <h2>Course Sections</h2>
+        
+        @for (int i = 0; i < Model.UserCourse.CourseCodeNavigation.CourseSections.Count; i++)
+            {
+            var currentId = i + 1;
+            var item = Model.UserCourse.CourseCodeNavigation.CourseSections.ToList()[i];
+            var buttonDisabled = false;
+            var buttonText = "Start Learning";
+            if(Model.UserCourse.IsCourseComplete ?? false)
+            {
+                 buttonText = "Revisit Topic";
+            }
+            else
+            {
+                if (Model.UserCourse.CurrentSectionId > item.SectionId)
+                {
+                    currentSectionForProgress++;
+                    buttonText = "Revisit Topic";
+                }
+                else if (Model.UserCourse.CurrentSectionId == item.SectionId)
+                {
+                    buttonText = "Continue Learning";
+                }
+                else
+                {
+                    if(Model.UserCourse.CourseCodeNavigation.IsEvaluationRequired ?? false)
+                    {
+                        buttonDisabled = true;
+                    }
+                }
+        }
+       
+            <section class="sections">            
+                <div class="section">
+                    <h3>Section @currentId : @item.SectionTitle</h3>
+                    <p>Duration: @item.SectionDuration Minutes</p>
+                    <p>@item.SectionDescription</p>
+                    @if(buttonDisabled)
+                    {
+                        <a class="btn btn-disabled">@buttonText</a>
+                    }
+                    else
+                    {
+                        <a class="btn btn-primary" asp-area="Learner" asp-page="SectionOverview" asp-route-sectionId="@item.SectionId">@buttonText</a>
+                    }
+                
+                </div>
+            </section>
+            }
+    <input type="hidden" value="@currentSectionForProgress" id="currentSectionForProgress" />
+    </div>
+<style>
+
+    .headerCourseOverviewContainer {
+        background-color: #04102C;
+        color: #fff;
+        text-align: center;
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 24px;
+        margin: 0;
+    }
+
+    .courseOverviewContainer {
+        max-width: 1200px;
+        margin: 0 auto;
+        background-color: #fff;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        border-radius: 5px;
+    }
+
+    .course-details {
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 1px solid #ccc;
+        padding: 20px 0;
+    }
+
+    .description {
+        flex: 1;
+        min-width: 800px;
+    }
+
+        .description h2 {
+            font-size: 20px;
+        }
+
+    .enrollment {
+        flex: 1;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .enroll-button {
+        background-color: #28a745;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 16px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+    }
+
+        .enroll-button:hover {
+            background-color: #218838;
+        }
+
+  /*   .progress {
+        text-align: center;
+        width: 200px;
+    }
+
+    .progress-bar {
+        background-color: #007bff;
+        height: 20px;
+        width: 50%;
+        border-radius: 5px;
+        margin: 10px 0;
+    }
+
+        .progress-bar p {
+            margin: 0;
+            color: #333;
+            font-weight: bold;
+        } */
+
+    .sections {
+        padding: 20px 0;
+    }
+
+        .sections h2 {
+            font-size: 20px;
+        }
+
+    .section {
+        background-color: #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e0e0e0;
+        padding: 20px;
+        margin: 10px 0;
+        border-radius: 5px;
+    }
+
+    section h3 {
+        font-size: 18px;
+    }
+
+    .start-button {
+        background-color: #04102C;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 16px;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+    }
+
+        .start-button:hover {
+            background-color: #0056b3;
+        }
+
+    .progress-container {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .progress-bar {
+        width: 0;
+        height: 30px;
+        background-color: #4caf50;
+        transition: width 0.5s;
+    }
+
+    .progress-text {
+        text-align: center;
+        padding: 10px;
+        font-size: 16px;
+        color: #333;
+    }
+
+</style>
+@section Scripts {
+    <script type="text/javascript">
+        var currentUrl = window.location.href;
+        if (currentUrl.includes("success")) {
+            showMessage('success', "You have successfully enrolled to course. Enjoy learning");
+        }
+
+
+        var progressBar = document.getElementById('progressBar');
+        var progressText = document.getElementById('progressText');
+
+        function setProgress(value) {
+            value = Math.min(100, Math.max(0, value)); // Ensure value is between 0 and 100
+            progressBar.style.width = value + '%';
+            progressText.innerHTML = value + '%';
+        }
+
+        // Get elements by class name
+        var sections = document.getElementsByClassName('sections').length;
+        var currentSectionNumber = $('#currentSectionForProgress').val();
+        var isCourseComplete = $('#hiddenIsCourseComplete').val();
+        var courseProgress = ((currentSectionNumber) / sections) * 100;
+        console.log("coursecomplete " + isCourseComplete);
+        if (isCourseComplete === '1') {
+            courseProgress = 100;
+        }
+        setProgress(courseProgress);
+    </script>
+    <partial name="_ValidationScriptsPartial" />
+}

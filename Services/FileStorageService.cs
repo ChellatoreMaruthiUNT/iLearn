@@ -1,5 +1,6 @@
 ﻿using Azure;
 using Azure.Storage.Files.Shares;
+using Azure.Storage.Files.Shares.Models;
 using iLearn.Services.Interfaces;
 using System.Text;
 
@@ -8,17 +9,25 @@ namespace iLearn.Services
     public class FileStorageService: IFileStorageService
     {
         private readonly IConfiguration _config;
+        private IConfigurationSection azureFileStorage;
+        private string connectionString;
+        private string fileShareName;
+        private string folderName;
 
         public FileStorageService(IConfiguration config)
-        {
+        {;
             _config = config;
+        }
+        private void GetAzureDetails()
+        {
+            azureFileStorage = _config.GetSection("AzureFileStorage");
+            connectionString = azureFileStorage["AzureConnectionString"];
+            fileShareName = azureFileStorage["AzureFileShareName"];
+            folderName = azureFileStorage["AzureDirectoryName"];
         }
         public string UploadFile(string filePath, string destinationFolderToStore)
         {
-            var azureFileStorage = _config.GetSection("AzureFileStorage");
-            var connectionString = azureFileStorage["AzureConnectionString"];
-            var fileShareName = azureFileStorage["AzureFileShareName"];
-            var folderName = azureFileStorage["AzureDirectoryName"];
+            GetAzureDetails();
             var fileName = Guid.NewGuid().ToString("N") + Path.GetExtension(filePath);
             ShareClient share = new ShareClient(connectionString, fileShareName);
             share.CreateIfNotExists();
@@ -46,12 +55,78 @@ namespace iLearn.Services
             }
             return fileName;
         }
+
+        public byte[] DownloadFile(string fileName, string destinationFolder)
+        {
+            GetAzureDetails();
+
+            ShareServiceClient serviceClient = new ShareServiceClient(connectionString);
+            ShareClient shareClient = serviceClient.GetShareClient(fileShareName);
+            ShareDirectoryClient directory = shareClient.GetDirectoryClient(folderName);
+            ShareDirectoryClient subDirectory = directory.GetSubdirectoryClient(destinationFolder);
+            ShareFileClient fileClient = subDirectory.GetFileClient(fileName);
+
+            try
+            {
+                using (Stream fileStream = fileClient.OpenRead())
+                {
+                    using (MemoryStream memoryStream = new MemoryStream())
+                    {
+                        fileStream.CopyTo(memoryStream);
+                        return memoryStream.ToArray();
+                    }
+                }
+            }
+            catch (RequestFailedException ex)
+            {
+                Console.WriteLine($"Azure Storage request failed: {ex.Message}");
+            }
+            catch (IOException ex)
+            {
+                Console.WriteLine($"IO exception: {ex.Message}");
+            }
+
+            return null; // Return null if the file download was not successful.
+        }
+
+        public byte[] GetCertificate()
+        {
+            GetAzureDetails();
+            string destinationFolder = "Certificate_Download";
+            string fileName = "Certificate_iLearn.pdf";       
+
+            ShareServiceClient serviceClient = new ShareServiceClient(connectionString);
+            ShareClient shareClient = serviceClient.GetShareClient(fileShareName);
+            ShareDirectoryClient directory = shareClient.GetDirectoryClient(folderName);
+            ShareDirectoryClient subDirectory = directory.GetSubdirectoryClient(destinationFolder);
+            ShareFileClient fileClient = subDirectory.GetFileClient(fileName);
+
+            try
+            {
+                using (Stream fileStream = fileClient.OpenRead())
+                {
+                    using (MemoryStream memoryStream = new MemoryStream())
+                    {
+                        fileStream.CopyTo(memoryStream);
+                        return memoryStream.ToArray();
+                    }
+                }
+            }
+            catch (RequestFailedException ex)
+            {
+                Console.WriteLine($"Azure Storage request failed: {ex.Message}");
+            }
+            catch (IOException ex)
+            {
+                Console.WriteLine($"IO exception: {ex.Message}");
+            }
+
+            return null; // Return null if the file download was not successful.
+        }
+
         public void LogException(Exception ex)
         {
-            var azureFileStorage = _config.GetSection("AzureFileStorage");
-            var connectionString = azureFileStorage["AzureConnectionString"];
-            var fileShareName = azureFileStorage["AzureFileShareName"];
-            var folderName = azureFileStorage["AzureDirectoryName"];
+            GetAzureDetails();
             var fileName = "Exception" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".txt";
             ShareClient share = new ShareClient(connectionString, fileShareName);
             share.CreateIfNotExists();
@@ -84,10 +159,7 @@ namespace iLearn.Services
 
         public void LogMessage(string message)
         {
-            var azureFileStorage = _config.GetSection("AzureFileStorage");
-            var connectionString = azureFileStorage["AzureConnectionString"];
-            var fileShareName = azureFileStorage["AzureFileShareName"];
-            var folderName = azureFileStorage["AzureDirectoryName"];
+            GetAzureDetails();
             var fileName = "Message" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".txt";
             ShareClient share = new ShareClient(connectionString, fileShareName);
             share.CreateIfNotExists();

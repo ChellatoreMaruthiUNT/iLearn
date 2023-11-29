@@ -12,9 +12,17 @@
     <title>@ViewData["Title"] - iLearn</title>
     <link href="~/css/styles.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="~/lib/jqueryUI/css/base/jquery-ui-1.9.2.custom.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/iLearn.styles.css" asp-append-version="true" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery-unobtrusive-ajax/jquery.unobtrusive-ajax.min.js"></script>
+    <script src="~/lib/jqueryUI/js/jquery-1.8.3.js"></script>
+    <script src="~/lib/jqueryUI/js/jquery-ui-1.9.2.custom.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js"></script>
+    <script src="~/js/jspdf.min.js"></script>
+    <script src="~/js/html2canvas.min.js"></script>
 </head>
 <body>
     <header>
@@ -27,19 +35,15 @@
                     </a>
                     @if (ViewContext.ActionDescriptor.RouteValues["controller"]?.ToString() == "Home")
                     {
-                        <div class="input-group" style="width:600px">
-                            <input type="text" class="form-control" aria-label="Text input with dropdown button" style="max-width:500px">
-                            <div class="input-group-append">
-                                <button class="btn btn-outline-secondary dropdown-toggle" id="dropdown-header" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Actions</button>
-                                <div class="header-dropdown-menu" style="display:none; position: absolute">
-                                    <a class="dropdown-item" asp-area="Instructor" asp-page="/Instructor/Course">Create Course</a>
-                                    <a class="dropdown-item" asp-area="Instructor" asp-page="/Instructor/Sections">Create Sections</a>
-                                    <a class="dropdown-item" asp-area="Instructor" asp-page="/ManageInstructor/ListCourses">View Courses</a>
-                                </div>
+                        <form id="searchForm" asp-action="Search" asp-controller="Home" method="get">
+                            <div class="input-group" style="width:600px">
+                                <input type="text" id="searchText" class="form-control" aria-label="Text input with dropdown button" style="max-width:500px">
+                                <button class="btn btn-primary btn-outline-secondary" id="searchButton" type="button">Search</button>
+                                @* <input type="text" id="searchText" class="form-control" aria-label="Text input with dropdown button" style="max-width:500px"> *@
+                                <div id="autocomplete-results"></div>
                             </div>
-                        </div>
+                        </form>
                     }
-                        
                 }
                 else
                 {
@@ -58,23 +62,118 @@
     </header>
     <div class="container">
         <main role="main" class="pb-3">
+            <div id="message-container">
+            </div>
             @RenderBody()
         </main>
     </div>
-
-    <footer class="border-top footer text-muted" style="text-align:center">
-        <div>iLearn-v1.0</div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+<style>
+    /* Style for the autocomplete results container */
+    #searchButton {
+        background-color: #007bff !important;
+    }
+
+    #filter-button {
+        background-color: #007bff !important;
+    }
+    #autocomplete-results {
+        position: absolute;
+        background-color: white;
+        border: 1px solid #ccc;
+        max-height: 150px;
+        overflow-y: auto;
+        z-index: 1;
+        width: 200px;
+        display: none;
+    }
+
+    .ui-menu-item {
+        padding: 5px;
+        cursor: pointer;
+    }
+
+    .ui-state-focus {
+        background-color: #2A420C;
+        color: white;
+    }
+
+    #message-container {
+        background-color: white;
+        color: #fff;
+        padding: 10px;
+        border-radius: 5px;
+        z-index: 1000;
+        display: none;
+        justify-content: center;
+        position: sticky;
+        top: 10px;
+    }
+
+        #message-container.show {
+            display: flex;
+        }
+
+    .message {
+        margin-bottom: 10px;
+        background-color: white;
+        padding: 8px;
+        border-radius: 5px;
+    }
+
+        .message.success {
+            background-color: #4CAF50; /* Green for success messages */
+        }
+
+        .message.warning {
+            background-color: #FFC107; /* Yellow for warning messages */
+        }
+
+        .message.error {
+            background-color: #F44336; /* Red for error messages */
+        }
+</style>
 <script type="text/javascript">
-    $(document).ready(function () {
+    document.addEventListener("DOMContentLoaded", function () 
+    {
+        var searchButton = document.getElementById("searchButton");
+        var searchText = document.getElementById("searchText");
+        var cardsHolderDiv = document.getElementById("cardsHolderDiv");
+
+        $('#searchForm').submit(function (event) {
+            // Prevent the default form submission
+            event.preventDefault();
+            performSerach();
+        });
+        if (searchButton) { 
+            searchButton.addEventListener("click", function () {
+                performSerach();
+            });
+        }
+        
+        function performSerach() {
+            var query = searchText.value;
+            fetch("/Home/Search?searchText=" + query, {
+                method: "GET",
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            })
+                .then(function (response) {
+                    return response.text();
+                })
+                .then(function (data) {
+                    cardsHolderDiv.innerHTML = data;
+                })
+                .catch(function (error) {
+                    console.error("Error:", error);
+                });
+        };
+
+
         $('#dropdown-header').on('click', function () {
-            console.log('hiii');
             if ($(this).hasClass('expanded')) {
                 $(this).removeClass('expanded');
                 $('.header-dropdown-menu').hide();
@@ -88,6 +187,27 @@
         $('.dropdown-item').on('click', function () {
             $('#dropdown-header').removeClass('expanded');
             $('.header-dropdown-menu').hide();
-        })
+        });
+
+        function handleAutocomplete(request, response) {
+            $.ajax({
+                url: "/Home/Suggestions",
+                dataType: "json",
+                data: {
+                    term: request.term
+                },
+                success: function (data) {
+                    response(data);
+                }
+            });
+        }
+        $("#searchText").autocomplete({
+            source: handleAutocomplete,
+            minLength: 3,
+            select: function (event, ui) {
+                var selectedValue = ui.item.value;
+            }
+        });
     });
+
 </script>

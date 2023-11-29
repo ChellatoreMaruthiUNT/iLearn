@@ -1,0 +1,388 @@
+﻿@page
+@model iLearn.Views.Learner.SectionOverviewModel
+@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+}
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    int questionIndex = 1;
+}
+<body>
+    <a class="" style="float:left; margin-top:25px;" asp-area="Learner" asp-page="/CourseProgress" asp-route-courseCode="@Model.Section.CourseCodeNavigation.CourseCode">Back to progress.</a>
+    <br/>
+    <div class="row" style="height:50px"></div>
+    <h1>@Model.Section.SectionTitle</h1>
+    <p>Duration: @Model.Section.SectionDuration Minutes</p>
+    <h6>@Model.Section.SectionDescription</h6>
+    <div id="loadingIndicator" style="display: none;">
+        <div class="spinner"></div>
+        Loading...
+    </div>
+    <div style="width:1000px"></div>
+    <iframe src="@Url.Action("GetPdf", "Pdf", new { sectionId = Model.Section.SectionId })" width="100%" height="1000"></iframe>
+
+    @if (Model.Section.Evalutation.EvaluationQuestionMappings.Count > 0)
+    {
+        <div class="container">
+            <div id="quizSection">
+                <h2>Quiz</h2>
+                <form id="quizForm">
+                    <ol>
+                        @foreach (var question in Model.Section.Evalutation.EvaluationQuestionMappings)
+                        {
+                            var optionIndex = 1;
+                            var corectOption = ((question.Question.QuestionAnswerOptionId * 5) * 7) + 93;
+                            <li class="question" id="@("question"+questionIndex)">
+                                <p>@question.Question.QuestionDesc</p>
+                                <input type="hidden" id="@questionIndex" value="@corectOption">
+                                @foreach (var option in question.Question.QuestionOptionsMappings)
+                                {
+                                    <div class="options">
+                                        <input type="radio" name="@questionIndex" class="@questionIndex" id="@questionIndex@optionIndex" value="@option.OptionId">
+                                        <label for="@questionIndex@optionIndex">@optionIndex) @option.OptionDesc</label>
+                                    </div>
+                                    optionIndex++;
+                                }
+                            </li>
+                            questionIndex++;
+                        }
+                    </ol>
+                    <a id="prevQuestion" style="float: left; color:#0d6efd; text-decoration: underline; cursor:pointer">Previous Question</a>
+                    <a id="nextQuestion" style="float: right; color: #0d6efd; text-decoration: underline; cursor:pointer">Next Question</a>
+                </form>
+                <div class="result" id="quizResult"></div>
+            </div>
+        </div>
+    }
+    
+
+    @if(Model.PreviousSectionId > 0)
+    {
+        <a class="btn btn-lg btn-primary" style="float:left; margin-top:25px;" asp-area="Learner" asp-page="/SectionOverview" asp-route-sectionId="@Model.PreviousSectionId">Previous Section.</a>
+    }
+    @if(Model.NextSectionId > 0)
+    {
+        <a class="btn btn-lg btn-primary proceedToNext" style="float:right; margin-top:25px;" asp-area="Learner" asp-page="/SectionOverview" asp-route-sectionId="@Model.NextSectionId">Next section.</a>
+    }
+    else
+    {
+        <a class="btn btn-lg btn-primary proceedToNext" style="float:right; margin-top:25px;" asp-area="Learner" asp-page="/DownloadCertificate" asp-route-courseCode="@Model.Section.CourseCode">Complete Course</a>
+    }
+
+
+</body>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            var iframe = $('iframe');
+            iframe.on('load', function () {
+                $('#loadingIndicator').hide();
+            });
+            iframe.on('error', function () {
+                $('#loadingIndicator').hide();
+            });
+            $('#loadingIndicator').show();
+
+
+            // // Handle form submission
+            // $("#quizForm").on("submit", function (event) {
+            //     event.preventDefault(); // Prevent form from submitting
+
+            //     // Initialize variables
+            //     var score = 0;
+            //     var totalQuestions = 0;
+
+            //     // Iterate through each question
+            //     $("ol li").each(function () {
+            //         var question = $(this);
+            //         var selectedOption = question.find("input[type='radio']:checked");
+            //         totalQuestions++;
+            //         // Check if an option is selected
+            //         if (selectedOption.length > 0) {
+            //             var id = selectedOption.attr('class');
+            //             var correctOption = $('#' + id).val();
+            //             correctOption = (((correctOption - 93) / 7) / 5)
+            //             console.log(correctOption)
+            //             var selectedValue = selectedOption.val();
+            //             console.log(selectedValue)
+            //             // Increment the score if the selected option is correct
+            //             if (selectedValue == correctOption) {
+            //                 score++;
+            //             }                        
+            //         }
+            //     });
+
+            //     // Display the result
+            //     var resultMessage = "You scored " + score + " out of " + totalQuestions + " correct!";
+            //     $("#quizResult").text(resultMessage);
+            // });
+
+            var currentQuestion = 1; // Track the current question index
+
+            // Hide all questions except the first one
+            $(".question").hide();
+            $(".question:first").show();
+
+            if ($(".question").length > 0) {
+                $('.proceedToNext').hide();
+                if(currentQuestion == 1)
+                {
+                    $("#prevQuestion").hide();
+                }
+            }
+
+            var totalQuestions = @Model.Section.Evalutation.EvaluationQuestionMappings.Count;
+            var userAnswers = {};
+
+            $("#nextQuestion").on("click", function () {
+                var selectedOption = $("input[type='radio']." + currentQuestion + ":checked");
+                $("#quizResult").text("");
+
+                if (selectedOption.length > 0) {
+                    var selectedValue = selectedOption.val();
+                    var id = selectedOption.attr('class');
+                    var correctOption = $('#' + id).val();
+                    correctOption = (((correctOption - 93) / 7) / 5);
+
+                    userAnswers[currentQuestion] = selectedValue;
+
+                    $("." + currentQuestion).hide();
+                    currentQuestion++;
+
+                    if (currentQuestion <= totalQuestions) {
+                        $('#question' + (currentQuestion - 1)).hide();
+                        $('#question' + (currentQuestion)).show();
+                    } else {
+                        currentQuestion--;
+                        evaluateResults();
+                    }
+
+                    if (currentQuestion > 1) {
+                        $("#prevQuestion").show();
+                    }
+                }
+            });
+
+
+
+            $("#prevQuestion").on("click", function () {
+                currentQuestion--;
+                $("#quizResult").text("");
+                $('#question' + (currentQuestion + 1)).hide();
+                $('#question' + (currentQuestion)).show();
+                $("#nextQuestion").show();
+                if (currentQuestion == 1) {
+                    $("#prevQuestion").hide();
+                }
+            });
+
+            function evaluateResults() {
+                var answeredQuestions = 0;
+                for (var i = 1; i <= totalQuestions; i++) {
+                    var selectedValue = userAnswers[i];
+                    var id = $("input[type='radio']." + i + ":checked").attr('class');
+                    var correctOption = $('#' + id).val();
+                    correctOption = (((correctOption - 93) / 7) / 5);
+
+                    if (selectedValue == correctOption) {
+                        answeredQuestions++;
+                    }
+                }
+
+                if (answeredQuestions === totalQuestions) {
+                    var resultMessage = "Congratulations! You answered all questions correctly! You can proceed to the next section.";
+                    $("#quizResult").text(resultMessage);
+                    $("#quizResult").removeClass('incorrect').addClass('correct');
+                    $("#nextQuestion").hide();
+                    $('.proceedToNext').show();
+                } else {
+                    var resultMessage = "You answered " + answeredQuestions + " out of " + totalQuestions + " questions correctly. Please review the incorrect answers.";
+                    $("#quizResult").text(resultMessage);
+                    $("#quizResult").removeClass('correct').addClass('incorrect');
+                }
+            }
+
+
+
+            // Handle the "Next Question" button click
+            // $("#nextQuestion").on("click", function () {
+            //     var selectedOption = $("input[type='radio']." + currentQuestion + ":checked");
+            //     $("#quizResult").text("");
+            //     if (selectedOption.length > 0) {
+            //         var selectedValue = selectedOption.val();
+            //         var id = selectedOption.attr('class');
+            //         var correctOption = $('#' + id).val();
+            //         correctOption = (((correctOption - 93) / 7) / 5)
+            //         if (selectedValue == correctOption) 
+            //         {
+            //             $("." + currentQuestion).hide();
+            //             currentQuestion++;
+            //             if (currentQuestion <= @Model.Section.Evalutation.EvaluationQuestionMappings.Count) {
+            //                 $('#question' + (currentQuestion - 1)).hide();
+            //                 $('#question' + (currentQuestion)).show();
+            //             } else {
+            //                 // All questions answered correctly, display the result
+            //                 var resultMessage = "Congratulations! You answered all questions correctly! You can proceed to next section";
+            //                 $("#quizResult").text(resultMessage);
+            //                 $("#quizResult").removeClass('incorrect').addClass('correct');
+            //                 $("#nextQuestion").hide(); // Hide the "Next Question" button
+            //                 $('.proceedToNext').show();
+            //             }
+            //             if (currentQuestion > 1) {
+            //                 $("#prevQuestion").show();
+            //             }
+            //         } 
+            //         else
+            //         {
+            //             var resultMessage = "Incorrect answer. Please refer material and try again.";
+            //             $("#quizResult").text(resultMessage);
+            //             $("#quizResult").removeClass('correct').addClass('incorrect');
+            //         }
+            //     } 
+            // });
+
+            
+        });
+    </script>
+    <style>
+        #loadingIndicator {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+        }
+
+        /* Global Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-top: 35px;
+        }
+
+        /* Quiz Section Styles */
+        /* Quiz Section Styles */
+        #quizSection {
+            background-color: #f7f7f7;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            margin: 0 auto;
+            text-align: left;
+        }
+
+        h2 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #333;
+        }
+
+        ol {
+            list-style-type: decimal;
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 30px;
+        }
+
+        p {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        .options {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        input[type="radio"] {
+            display: none;
+        }
+
+        label {
+            font-size: 18px;
+            margin-left: 15px;
+            cursor: pointer;
+            color: #333;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+            label::before {
+                content: "";
+                display: inline-block;
+                position: absolute;
+                left: -30px;
+                width: 20px;
+                height: 20px;
+                border: 2px solid #ccc;
+                border-radius: 50%;
+                transition: border-color 0.3s ease;
+            }
+
+        input[type="radio"]:checked + label::before {
+            border-color: #007bff;
+            background: #007bff;
+        }
+
+        input[type="radio"]:not(:checked) + label::before::after {
+            opacity: 0;
+        }
+
+        input[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            font-size: 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 20px;
+            display: block;
+            margin: 0 auto;
+            transition: background-color 0.3s ease;
+        }
+
+            input[type="submit"]:hover {
+                background-color: #0056b3;
+            }
+
+        .result {
+            font-size: 18px;
+            margin-top: 20px;
+            text-align: center;
+            
+        }
+        .correct {
+            color: #007bff;
+        }
+
+        .incorrect {
+            color: red;
+        }
+
+
+    </style>
+    
+}

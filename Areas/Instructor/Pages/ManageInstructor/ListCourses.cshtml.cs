@@ -36,7 +36,9 @@ namespace iLearn.Views.Instructor
                     {
                         CourseCode = item.CourseCode,
                         CourseTitle = item.CourseTitle,
-                        CourseDescription = item.CourseDescription
+                        CourseDescription = item.CourseDescription,
+                        Duration = item.Duration ?? 0,
+                        
                     });
                 }
             }

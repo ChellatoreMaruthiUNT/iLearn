@@ -1,17 +1,33 @@
 ﻿.btn-primary {
-    background-color: #04102C !important; /* Change this to the color you want */
-    color: #fff; /* Change this to the text color you want */
+    background-color: #04102C !important;
+    color: #fff;
+    border-color: #04102C !important;
 }
 
 .dropdown-item {
-    background-color: #04102C !important; /* Change this to the color you want */
-    color: #fff !important; /* Change this to the text color you want */
+    background-color: white !important;
+    color: #04102C !important;
 }
 
 #dropdown-header {
+    color: #fff !important;
+    box-shadow: 0 0 0 0 !important;
+}
+
+#searchButton {
     color: #fff !important;
 }
 
 .description-box {
     height: 200px !important;
+}
+
+.btn-disabled {
+    background-color: grey !important;
+    color: #fff !important;
+    border-color: grey !important;
+}
+
+.header-dropdown-menu {
+    z-index: 3;
 }

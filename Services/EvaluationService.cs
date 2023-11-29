@@ -41,26 +41,8 @@ namespace iLearn.Services
                 };
                 _context.EvaluationQuestionMappings.Add(evaluationQuestionMap);
                 _context.SaveChanges();
-                //// create option
-                //foreach (var item in question.QuestionOptionsMappings)
-                //{
-                //    item.QuestionId = questionId;
-                //    item.QuestionOptionsMapId = 0;
-                //}
-                //_context.QuestionOptionsMappings.AddRange(question.QuestionOptionsMappings);
-                //_context.SaveChanges();
             }
             return evaluationId;
-        }
-
-        public void DeleteEvaluation(Evaluation evaluation)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void DeleteQuestionsOfEvaluation(int evaluationId)
-        {
-            throw new NotImplementedException();
         }
     }
 }
